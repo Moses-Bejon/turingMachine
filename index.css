@@ -1,0 +1,17 @@
+body,html{
+    height: 100%;
+}
+
+.input{
+    height: 80%;
+}
+
+#programInput{
+    height: 100%;
+    width: 100%;
+}
+
+#playButton{
+    height: 50px;
+    width: 50px;
+}

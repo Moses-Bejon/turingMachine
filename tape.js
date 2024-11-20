@@ -48,21 +48,21 @@ export class tape{
             currentTapePlace = currentTapePlace.leftSymbol
         }
 
-        if (currentTapePlace === this.currentSymbol) {
+        if (currentTapePlace === this.currentSymbol && false) {
             tapeArray.push("!"+currentTapePlace.value)
         } else{
             tapeArray.push(currentTapePlace.value)
         }
         while (currentTapePlace.rightSymbol !== undefined){
             currentTapePlace = currentTapePlace.rightSymbol
-            if (currentTapePlace === this.currentSymbol) {
+            if (currentTapePlace === this.currentSymbol && false) {
                 tapeArray.push("!"+currentTapePlace.value)
             } else{
                 tapeArray.push(currentTapePlace.value)
             }
         }
 
-        console.log(tapeArray)
+        document.getElementById("programOutput").innerText = tapeArray
     }
 }
 
