@@ -1,6 +1,100 @@
 import {tape} from "./tape.js"
 import {head} from "./head.js"
 
+/*
+SAMPLE PROGRAM (Busy beaver Turing machine for 4 states)
+0
+~
+0
+~
+0
+~
+A
+~
+A~0~1~right~B
+A~1~1~left~B
+B~0~1~left~A
+B~1~0~left~C
+C~0~1~right~H
+C~1~1~left~D
+D~0~1~right~D
+D~1~0~right~A
+*/
+
+const programOutput = document.getElementById("programOutput")
+
+function play(unTokenisedProgram) {
+    /* TOKENISER: */
+
+    const newSection = /\n~\n/
+
+    const firstNewSectionPosition = unTokenisedProgram.search(newSection)
+
+    const initialHeadPositionString = unTokenisedProgram.slice(0, firstNewSectionPosition)
+    unTokenisedProgram = unTokenisedProgram.slice(firstNewSectionPosition + 3)
+
+    const secondNewSectionPosition = unTokenisedProgram.search(newSection)
+
+    const arrayTape = unTokenisedProgram.slice(0, secondNewSectionPosition).split("\n")
+    unTokenisedProgram = unTokenisedProgram.slice(secondNewSectionPosition + 3)
+
+    const thirdNewSectionPosition = unTokenisedProgram.search(newSection)
+
+    const defaultSymbol = unTokenisedProgram.slice(0, thirdNewSectionPosition)
+    unTokenisedProgram = unTokenisedProgram.slice(thirdNewSectionPosition + 3)
+
+    const fourthNewSectionPosition = unTokenisedProgram.search(newSection)
+
+    const startingState = unTokenisedProgram.slice(0, fourthNewSectionPosition)
+    unTokenisedProgram = unTokenisedProgram.slice(fourthNewSectionPosition + 3)
+
+    const stateTransitionFunction = []
+    const stateTransitionPossibilities = unTokenisedProgram.split("\n")
+
+    for (const stateTransitionPossibility of stateTransitionPossibilities) {
+        const tokenisedStateTransitionPossibility = stateTransitionPossibility.split("~")
+        stateTransitionFunction.push([tokenisedStateTransitionPossibility.slice(0, 2),
+            tokenisedStateTransitionPossibility.slice(2, 5)])
+    }
+
+    /* PARSER */
+    /* As the syntax of my language is so lenient, and the relations between tokens are extremely simple with 2 keywords (left and right), the parser is quite short */
+
+    const initialHeadPosition = parseInt(initialHeadPositionString)
+    if (isNaN(initialHeadPosition)){
+        programOutput.innerText = "Error: The initial head position must be an integer"
+        return
+    }
+
+    for (const stateTransitionPossibility of stateTransitionFunction){
+        if (stateTransitionPossibility[1][1] !== "left" && stateTransitionPossibility[1][1] !== "right"){
+            programOutput.innerText = "Error: You have a direction that is not specified to be either 'left' or 'right'"
+            return
+        }
+    }
+
+    /* RUN TIME */
+
+    const tapeObject = new tape(arrayTape, defaultSymbol, initialHeadPosition)
+
+    const headObject = new head(stateTransitionFunction, tapeObject, startingState)
+
+    const iterator = headObject.step()
+
+    function animate(){
+        if (iterator.next().done){
+            return
+        }
+
+        tapeObject.printTape()
+        requestAnimationFrame(animate)
+    }
+
+    animate()
+}
+
+/* UI STUFF */
+
 const languageHTML = document.createElement("div")
 languageHTML.className = "input"
 languageHTML.innerHTML = `
@@ -22,87 +116,20 @@ inputsHTML.innerHTML = `
 
 <br>
 
-<label for="defaultSymbol">Symbol of all the cells surrounding the tape</label>
+<label for="defaultSymbol">Symbol of all the cells surrounding the tape:</label>
 <input id="defaultSymbol" type="text">
 
 <br>
 
-<label for="initialState">State that the Turing machine begins at</label>
+<label for="initialState">State that the Turing machine begins at:</label>
 <input id="initialState" type="text">
 
 <br>
 
-<label for="stateTransitionFunction">State transition function</label>
+<label for="stateTransitionFunction">State transition function:</label>
 <div id="stateTransitionFunction"></div>
 </div>
 `
-
-function play(unTokenisedProgram) {
-    /*
-    let unTokenisedProgram = `0
-~
-0
-~
-0
-~
-A
-~
-A~0~1~right~B
-A~1~1~left~B
-B~0~1~left~A
-B~1~0~left~C
-C~0~1~right~H
-C~1~1~left~D
-D~0~1~right~D
-D~1~0~right~A`*/
-
-    const newSection = /\n~\n/
-
-    const firstNewSectionPosition = unTokenisedProgram.search(newSection)
-
-    const initialHeadPosition = parseInt(unTokenisedProgram.slice(0, firstNewSectionPosition))
-    unTokenisedProgram = unTokenisedProgram.slice(firstNewSectionPosition + 3)
-
-    const secondNewSectionPosition = unTokenisedProgram.search(newSection)
-
-    const arrayTape = unTokenisedProgram.slice(0, secondNewSectionPosition).split("\n")
-    unTokenisedProgram = unTokenisedProgram.slice(secondNewSectionPosition + 3)
-
-    const thirdNewSectionPosition = unTokenisedProgram.search(newSection)
-
-    const defaultSymbol = unTokenisedProgram.slice(0, thirdNewSectionPosition)
-    unTokenisedProgram = unTokenisedProgram.slice(thirdNewSectionPosition + 3)
-
-    const tapeObject = new tape(arrayTape, defaultSymbol, initialHeadPosition)
-
-    const fourthNewSectionPosition = unTokenisedProgram.search(newSection)
-
-    const startingState = unTokenisedProgram.slice(0, fourthNewSectionPosition)
-    unTokenisedProgram = unTokenisedProgram.slice(fourthNewSectionPosition + 3)
-
-    const stateTransitionFunction = []
-    const stateTransitionPossibilities = unTokenisedProgram.split("\n")
-
-    for (const stateTransitionPossibility of stateTransitionPossibilities) {
-        const tokenisedStateTransitionPossibility = stateTransitionPossibility.split("~")
-        stateTransitionFunction.push([tokenisedStateTransitionPossibility.slice(0, 2),
-            tokenisedStateTransitionPossibility.slice(2, 5)])
-    }
-
-    const headObject = new head(stateTransitionFunction, tapeObject, startingState)
-
-    const iterator = headObject.step()
-
-    function animate(){
-        iterator.next()
-        tapeObject.printTape()
-        console.log("animation ongoing")
-
-        requestAnimationFrame(animate)
-    }
-
-    animate()
-}
 
 const input = document.getElementById("input")
 
@@ -210,6 +237,7 @@ document.getElementById("playButton").onclick = () => {
             convertedToCode += "\n"+stateTransitionFunctionInputs[i].value+"~"+stateTransitionFunctionInputs[i+1].value+"~"+stateTransitionFunctionInputs[i+2].value+"~"+stateTransitionFunctionInputs[i+3].value+"~"+stateTransitionFunctionInputs[i+4].value
         }
 
+        console.log("The program generated by your UI choices is given:")
         console.log(convertedToCode)
 
         play(convertedToCode)
@@ -217,11 +245,3 @@ document.getElementById("playButton").onclick = () => {
 }
 
 document.getElementById("switchInputMode").onclick = updateInputMode
-
-
-
-/*
-document.addEventListener("keypress",()=>{
-    iterator.next()
-    tapeObject.printTape()
-})*/
