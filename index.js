@@ -93,9 +93,15 @@ D~1~0~right~A`*/
 
     const iterator = headObject.step()
 
+    function animate(){
+        iterator.next()
+        tapeObject.printTape()
+        console.log("animation ongoing")
 
-    for (const _ of iterator) {}
-    tapeObject.printTape()
+        requestAnimationFrame(animate)
+    }
+
+    animate()
 }
 
 const input = document.getElementById("input")

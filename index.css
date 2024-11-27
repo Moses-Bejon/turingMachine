@@ -11,6 +11,11 @@ body,html{
     width: 100%;
 }
 
+#programOutput{
+    width: 100%;
+    overflow-wrap: break-word;
+}
+
 #playButton{
     height: 50px;
     width: 50px;
