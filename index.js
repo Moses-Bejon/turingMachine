@@ -108,8 +108,6 @@ function updateInputMode() {
         case "language":
             currentMode = "inputs"
 
-            console.log(currentMode)
-
             input.replaceChildren(inputsHTML)
 
             break
@@ -125,9 +123,15 @@ function updateInputMode() {
 
 updateInputMode()
 
+const headInput = document.getElementById("initialHeadPosition")
+
 const tapeContainer = document.getElementById("tape")
 
 const tapeInputs = []
+
+const defaultSymbol = document.getElementById("defaultSymbol")
+
+const initialState = document.getElementById("initialState")
 
 let lastCell = document.querySelector(".cell")
 
@@ -169,6 +173,8 @@ function newStateTransitionPossibility() {
     <input type="text" class="tapeInput">
     <label for="tapeOutput">Tape output: </label>
     <input type="text" class="tapeOutput">
+    <label for="direction">Direction (left/right): </label>
+    <input type="text" class="directionInput">
     <label for="nextStateID">Next state name: </label>
     <input type="text" class="nextStateID">
     `
@@ -178,15 +184,29 @@ function newStateTransitionPossibility() {
     for (const input of lastStateTransitionPossibility.querySelectorAll("input")){
         input.addEventListener("input",newStateTransitionPossibility)
     }
-
-    console.log(stateTransitionFunctionInputs)
 }
 
 document.getElementById("playButton").onclick = () => {
     if (currentMode === "language") {
         play(document.getElementById("programInput").value)
     } else {
+        let convertedToCode = ""
 
+        convertedToCode += headInput.value + "\n~\n"
+
+        for (const tapeInput of tapeInputs){
+            convertedToCode += tapeInput.value + "\n"
+        }
+
+        convertedToCode += "~\n"+defaultSymbol.value + "\n~\n" + initialState.value + "\n~"
+
+        for (let i = 0; i<stateTransitionFunctionInputs.length; i += 5){
+            convertedToCode += "\n"+stateTransitionFunctionInputs[i].value+"~"+stateTransitionFunctionInputs[i+1].value+"~"+stateTransitionFunctionInputs[i+2].value+"~"+stateTransitionFunctionInputs[i+3].value+"~"+stateTransitionFunctionInputs[i+4].value
+        }
+
+        console.log(convertedToCode)
+
+        play(convertedToCode)
     }
 }
 
