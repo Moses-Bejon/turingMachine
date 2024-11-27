@@ -190,7 +190,7 @@ let lastStateTransitionPossibility = document.createElement("div")
 newStateTransitionPossibility()
 
 function newStateTransitionPossibility() {
-    const allInputs = lastStateTransitionPossibility.querySelectorAll("input")
+    const allInputs = lastStateTransitionPossibility.querySelectorAll("input,select")
 
     for (const input of allInputs) {
         input.removeEventListener("input", newStateTransitionPossibility)
@@ -206,15 +206,18 @@ function newStateTransitionPossibility() {
     <input type="text" class="tapeInput">
     <label for="tapeOutput">Tape output: </label>
     <input type="text" class="tapeOutput">
-    <label for="direction">Direction (left/right): </label>
-    <input type="text" class="directionInput">
+    <label for="direction">Direction: </label>
+    <select class="directionInput">
+        <option>left</option>
+        <option>right</option>
+    </select>
     <label for="nextStateID">Next state name: </label>
     <input type="text" class="nextStateID">
     `
 
     stateTransitionFunctionContainer.appendChild(lastStateTransitionPossibility)
 
-    for (const input of lastStateTransitionPossibility.querySelectorAll("input")){
+    for (const input of lastStateTransitionPossibility.querySelectorAll("input,select")){
         input.addEventListener("input",newStateTransitionPossibility)
     }
 }
